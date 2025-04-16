@@ -27,6 +27,7 @@ jobs:
           foreach ($file in $phpFiles) {
             $content = Get-Content $file.FullName -Raw
             $jsonBody = @{ contents = $content } | ConvertTo-Json -Compress
+            Write-Host $jsonBody
 
             $response = Invoke-RestMethod -Uri "http://localhost:3000/analyze" `
                                            -Method POST `
