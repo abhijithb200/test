@@ -33,7 +33,7 @@ jobs:
                                            -Body $jsonBody `
                                            -ContentType "application/json"
 
-            $vulnCount = $response.vulnerabilities.Count
+            $vulnCount = $response.vulns.Count
             if ($vulnCount -gt 0) {
               Write-Host "❌ Vulnerabilities found in $($file.FullName): $vulnCount"
               $hasVulns = $true
