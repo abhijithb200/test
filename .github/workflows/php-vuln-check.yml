@@ -73,7 +73,7 @@ jobs:
             exit 1
           }
           else {
-            Write-Host "✅ All PHP files are clean."
+            Write-Host "All PHP files are clean."
             Add-Content -Path $outputPath -Value 'has_vulns=false'
           }
 
