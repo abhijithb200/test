@@ -1,9 +1,13 @@
 name: PHP Vulnerability Scan (Windows Localhost)
 
 on:
+  push:
+    paths:
+      - '**.php'
   pull_request:
     paths:
       - '**.php'
+
 
 jobs:
   scan:
