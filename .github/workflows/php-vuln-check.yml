@@ -39,7 +39,7 @@ jobs:
             $jsonBody = "{""contents"": ""$escaped""}"
 
             try {
-              $response = Invoke-RestMethod -Uri "http://localhost:8080/analyze" `
+              $response = Invoke-RestMethod -Uri "http://localhost:3000/analyze" `
                                             -Method Post `
                                             -Body $jsonBody `
                                             -ContentType "application/json"
