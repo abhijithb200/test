@@ -35,8 +35,7 @@ jobs:
             Write-Host "📄 Scanning file: $($file.FullName)"
 
             $content = Get-Content $file.FullName -Raw
-            $escaped = $content -replace '"', '\"'
-            $jsonBody = "{""contents"": ""$escaped""}"
+            $jsonBody = @{ contents = $content } | ConvertTo-Json -Compress
 
             try {
               $response = Invoke-RestMethod -Uri "http://localhost:3000/analyze" `
