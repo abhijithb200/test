@@ -1,2 +1,3 @@
 <?php
-echo "Hello world!"._GET["abhiiiiiuuiiii"];
+$a = $_GET['name'];
+echo "Name is".$a;
