@@ -28,7 +28,7 @@ jobs:
             $content = Get-Content $file.FullName -Raw
             $jsonBody = @{ contents = $content } | ConvertTo-Json -Compress
 
-            $response = Invoke-RestMethod -Uri "http://localhost:8080/analyze" `
+            $response = Invoke-RestMethod -Uri "http://localhost:3000/analyze" `
                                            -Method POST `
                                            -Body $jsonBody `
                                            -ContentType "application/json"
