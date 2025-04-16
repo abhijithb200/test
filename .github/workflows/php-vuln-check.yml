@@ -65,11 +65,7 @@ jobs:
 
           if ($hasVulns) {
             # Write vuln_summary to GITHUB_OUTPUT
-            Add-Content -Path $outputPath -Value "vuln_summary<<EOF"
-            $vulnPrintout -join "`n" | Add-Content -Path $outputPath
-            Add-Content -Path $outputPath -Value "EOF"
-
-            Add-Content -Path $outputPath -Value "has_vulns=true"
+           
             exit 1
           }
           else {
