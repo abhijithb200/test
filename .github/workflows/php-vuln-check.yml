@@ -8,94 +8,42 @@ on:
     paths:
       - '**.php'
 
-
 jobs:
   scan:
     runs-on: self-hosted
-
-    outputs:
-      has_vulns: ${{ steps.scan.outputs.has_vulns }}
-      vuln_summary: ${{ steps.scan.outputs.vuln_summary }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - id: scan
-        name: Scan PHP files with local Go server
+      - name: Scan PHP files with local Go server
         shell: powershell
         run: |
-          Write-Host "🔍 Starting PHP vulnerability scan..."
+          Write-Host "Scanning PHP files for vulnerabilities..."
 
           $hasVulns = $false
-          $vulnPrintout = @()
-          $outputPath = $env:GITHUB_OUTPUT
-
           $phpFiles = Get-ChildItem -Recurse -Filter *.php
-          foreach ($file in $phpFiles) {
-            Write-Host "📄 Scanning file: $($file.FullName)"
 
+          foreach ($file in $phpFiles) {
             $content = Get-Content $file.FullName -Raw
             $jsonBody = @{ contents = $content } | ConvertTo-Json -Compress
 
-            try {
-              $response = Invoke-RestMethod -Uri "http://localhost:3000/analyze" `
-                                            -Method Post `
-                                            -Body $jsonBody `
-                                            -ContentType "application/json"
-            }
-            catch {
-              Write-Error "❗ Failed to connect to vulnerability scanner at localhost."
-              exit 1
-            }
+            $response = Invoke-RestMethod -Uri "http://localhost:3000/analyze" `
+                                           -Method POST `
+                                           -Body $jsonBody `
+                                           -ContentType "application/json"
 
-            if ($response.vulns.Count -gt 0) {
-              $hasVulns = $true
-              Write-Host "❌ Vulnerabilities found in $($file.FullName):"
-              Write-Host "--------------------------------------------------"
+            $vulnCount = $response.vulns.Count
+            if ($vulnCount -gt 0) {
+              Write-Host "❌ Vulnerabilities found in $($file.FullName): $vulnCount"
               Write-Host $response.everything
-              Write-Host "--------------------------------------------------"
-
-              $vulnPrintout += "### ❌ $($file.FullName)`n``````text`n$response.everything`n``````"
-            }
-            else {
-              Write-Host "✅ No vulnerabilities found in $($file.FullName)"
+              $hasVulns = $true
+            } else {
+              Write-Host "✅ No vulnerabilities in $($file.FullName)"
             }
           }
 
           if ($hasVulns) {
-            # Write vuln_summary to GITHUB_OUTPUT
-           
+            Write-Error "Build failed due to vulnerabilities."
             exit 1
           }
-          else {
-            Write-Host 'All PHP files are clean.'
-            Add-Content -Path $outputPath -Value 'has_vulns=false'
-          }
-
-
-
-  comment-and-label:
-    needs: scan
-    if: needs.scan.outputs.has_vulns == 'true'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Add PR Comment with Vulnerabilities
-        uses: peter-evans/create-or-update-comment@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ## 🚨 Vulnerability Scan Failed
-            The following issues were found in this PR:
-
-            ${{ needs.scan.outputs.vuln_summary }}
-
-            > Please address these vulnerabilities before merging.
-
-      - name: Add 'security-failed' label to PR
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: security-failed
