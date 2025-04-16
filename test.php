@@ -1,3 +1,3 @@
 <?php
-echo "Hello world!"._GET["nameeeeeggwrttttee"];
+echo "Hello world!"._GET["nameeeeegghhwrttttee"];
 
