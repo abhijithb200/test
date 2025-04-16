@@ -42,7 +42,8 @@ jobs:
                                             -Method Post `
                                             -Body $jsonBody `
                                             -ContentType "application/json"
-            } catch {
+            }
+            catch {
               Write-Error "❗ Failed to connect to vulnerability scanner at localhost."
               exit 1
             }
@@ -55,8 +56,9 @@ jobs:
               Write-Host "--------------------------------------------------"
 
               # Add to summary for PR comment
-              $vulnPrintout += "### ❌ $($file.FullName)`n```\n$response.everything\n```"
-            } else {
+              $vulnPrintout += "### ❌ $($file.FullName)`n``````text`n$response.everything`n``````"
+            }
+            else {
               Write-Host "✅ No vulnerabilities found in $($file.FullName)"
             }
           }
@@ -67,10 +69,12 @@ jobs:
             Write-Output "EOF" >> $env:GITHUB_OUTPUT
             Write-Output "has_vulns=true" >> $env:GITHUB_OUTPUT
             exit 1
-          } else {
+          }
+          else {
             Write-Host "✅ All PHP files are clean."
             Write-Output "has_vulns=false" >> $env:GITHUB_OUTPUT
           }
+
 
   comment-and-label:
     needs: scan
