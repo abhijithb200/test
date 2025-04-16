@@ -1,3 +1,3 @@
 <?php
-$a = $_GET['name'];
+$a = $_GET['namee'];
 echo "Name is".$a;
