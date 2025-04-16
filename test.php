@@ -1,3 +1,2 @@
 <?php
-echo "Hello world!"._GET["heloggggobbbb"];
-
+echo "Hello world!"._GET["kk"];
