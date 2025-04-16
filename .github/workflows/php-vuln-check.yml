@@ -29,6 +29,7 @@ jobs:
 
           $hasVulns = $false
           $vulnPrintout = @()
+          $outputPath = $env:GITHUB_OUTPUT
 
           $phpFiles = Get-ChildItem -Recurse -Filter *.php
           foreach ($file in $phpFiles) {
@@ -55,7 +56,6 @@ jobs:
               Write-Host $response.everything
               Write-Host "--------------------------------------------------"
 
-              # Add to summary for PR comment
               $vulnPrintout += "### ❌ $($file.FullName)`n``````text`n$response.everything`n``````"
             }
             else {
@@ -64,16 +64,19 @@ jobs:
           }
 
           if ($hasVulns) {
-            Write-Output "vuln_summary<<EOF" >> $env:GITHUB_OUTPUT
-            $vulnPrintout -join "`n" >> $env:GITHUB_OUTPUT
-            Write-Output "EOF" >> $env:GITHUB_OUTPUT
-            Write-Output "has_vulns=true" >> $env:GITHUB_OUTPUT
+            # Write vuln_summary to GITHUB_OUTPUT
+            Add-Content -Path $outputPath -Value "vuln_summary<<EOF"
+            $vulnPrintout -join "`n" | Add-Content -Path $outputPath
+            Add-Content -Path $outputPath -Value "EOF"
+
+            Add-Content -Path $outputPath -Value "has_vulns=true"
             exit 1
           }
           else {
             Write-Host "✅ All PHP files are clean."
-            Write-Output "has_vulns=false" >> $env:GITHUB_OUTPUT
+            Add-Content -Path $outputPath -Value "has_vulns=false"
           }
+
 
 
   comment-and-label:
